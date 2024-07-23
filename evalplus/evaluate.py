@@ -278,44 +278,6 @@ def evaluate(flags):
                 }
                 
 
-    # Calculate pass@k.
-    total = np.array([len(r) for r in results["eval"].values()])
-    base_correct = []
-    new_correct = []
-
-    for res in results["eval"].values():
-        bc = sum([r["base_status"] == PASS for r in res])
-        base_correct.append(bc)
-        if not flags.base_only:
-            new_correct.append(
-                sum(
-                    [
-                        res[i]["base_status"] == res[i]["plus_status"] == PASS
-                        for i in range(len(res))
-                    ]
-                )
-            )
-    base_correct = np.array(base_correct)
-
-    pass_at_k = {
-        f"pass@{k}": estimate_pass_at_k(total, base_correct, k).mean()
-        for k in [1, 10, 100]
-        if total.min() >= k
-    }
-    cprint(f"{flags.dataset} (base tests)", "red")
-    for k, v in pass_at_k.items():
-        cprint(f"{k}:\t{v:.3f}", "red")
-
-    if new_correct:
-        cprint(f"{flags.dataset}+ (base + extra tests)", "green")
-        pass_at_k = {
-            f"pass@{k}": estimate_pass_at_k(total, np.array(new_correct), k).mean()
-            for k in [1, 10, 100]
-            if (total >= k).all()
-        }
-        for k, v in pass_at_k.items():
-            cprint(f"{k}:\t{v:.3f}", "green")
-
     # save results
     if os.path.isfile(result_path) and flags.i_just_wanna_run:
         decision = ""
