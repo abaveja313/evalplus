@@ -86,6 +86,7 @@ def check_correctness(
     identifier=None,
     min_time_limit: float = 0.1,
     gt_time_limit_factor: float = 2.0,
+    probs: float = None
 ) -> Dict[str, Result]:  # {...}, "base" | "plus" -> (status, details)
     ret = {
         "completion_id": completion_id,
@@ -93,6 +94,9 @@ def check_correctness(
         "_identifier": identifier,
         "solution": solution,
     }
+    if probs:
+        ret["prob"] = probs
+        
     ret["base"] = untrusted_check(
         dataset,
         solution,
@@ -201,6 +205,7 @@ def evaluate(flags):
                     sample["_identifier"],
                     flags.min_time_limit,
                     flags.gt_time_limit_factor,
+                    probs=sample.get("probs", None)
                 ) 
                 futures.append(executor.submit(check_correctness, *args))
                 completion_id[task_id] += 1
@@ -224,12 +229,11 @@ def evaluate(flags):
             for future in tqdm(as_completed(futures), total=n_samples):
                 result = future.result()
                 remainings.remove(result["_identifier"])
-                eval_results[result["_identifier"]] = {"task_id": result['task_id'], "result": result}
+                eval_results[result["_identifier"]] = result
 
         # sort the results for each problem by completion_id
         for ident, task_results in eval_results.items():
             task_id = task_results["task_id"]
-            task_results = task_results["result"]
             
             task_results.sort(key=lambda x: x["completion_id"])
             for res in task_results:
@@ -267,6 +271,7 @@ def evaluate(flags):
 
                 results["eval"][ident] = {
                         "task_id": task_id,
+                        "probs": res.get("probs", None),
                         "solution": res["solution"],
                         "base_status": base_stat,
                         "plus_status": plus_stat,
