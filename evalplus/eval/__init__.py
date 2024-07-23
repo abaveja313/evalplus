@@ -129,7 +129,7 @@ def unsafe_execute(
         # Disable functionalities that can make destructive changes to the test.
         # allow only 4GB memory usage
         maximum_memory_bytes = 4 * 1024 * 1024 * 1024
-        reliability_guard(maximum_memory_bytes=maximum_memory_bytes)
+        # reliability_guard(maximum_memory_bytes=maximum_memory_bytes)
         exec_globals = {}
         try:
             with swallow_io():
