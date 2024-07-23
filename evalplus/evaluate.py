@@ -247,7 +247,7 @@ def evaluate(flags):
                 # else => simply return the only and the last fail test
                 return [inputs[len(details) - 1]]
 
-            base_stat, base_details = res["base"]
+            base_stat, base_details = task_results["base"]
             base_fail_tests = get_failed_tests(
                 base_stat, base_details, problems[task_id]["base_input"]
             )
@@ -258,7 +258,7 @@ def evaluate(flags):
 
             # with plus tests
             if not flags.base_only:
-                plus_stat, plus_details = res["plus"]
+                plus_stat, plus_details = task_results["plus"]
                 plus_fail_tests = get_failed_tests(
                     plus_stat, plus_details, problems[task_id]["plus_input"]
                 )
@@ -269,8 +269,8 @@ def evaluate(flags):
 
             results["eval"][ident] = {
                     "task_id": task_id,
-                    "probs": res.get("probs", None),
-                    "solution": res["solution"],
+                    "probs": task_results.get("probs", None),
+                    "solution": task_results["solution"],
                     "base_status": base_stat,
                     "plus_status": plus_stat,
                     "base_fail_tests": base_fail_tests,
