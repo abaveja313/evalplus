@@ -109,28 +109,11 @@ def load_solutions(sample_path: PathLike) -> Iterable[Dict]:
                 sample["completion"], str
             ), "Completion must be a string! If you have multiple solutions, please repeat the task_id."
 
-            sample["_identifier"] = (
-                sample["task_id"] + f" (line {i+1} in {sample_path})"
-            )
+            sample["_identifier"] = sample["identifier"]
+            
             yield sample
     else:
-        # if it is a folder
-        for task_id in os.listdir(sample_path):
-            task_path = os.path.join(sample_path, task_id)
-            if not os.path.isdir(task_path):
-                continue
-
-            for solution_id in os.listdir(task_path):
-                solution_path = os.path.join(task_path, solution_id)
-                if os.path.isfile(solution_path) and solution_path.endswith(".py"):
-                    with open(solution_path, "r") as f:
-                        completion = f.read()
-                    yield {
-                        "_identifier": solution_path,
-                        "_path": solution_path,
-                        "task_id": task_id.replace("_", "/"),
-                        "solution": completion,
-                    }
+        raise NotImplementedError("Removed support for folders!")
 
 
 def write_directory(directory: PathLike, data: Iterable[Dict]):

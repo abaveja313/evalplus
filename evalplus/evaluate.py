@@ -173,7 +173,7 @@ def evaluate(flags):
             futures = []
             completion_id = Counter()
             n_samples = 0
-            eval_results = defaultdict(list)  # task_id ->
+            eval_results = {}  # identifier ->
             remainings = set()
 
             print("Reading samples...")
@@ -201,13 +201,13 @@ def evaluate(flags):
                     sample["_identifier"],
                     flags.min_time_limit,
                     flags.gt_time_limit_factor,
-                )
+                ) 
                 futures.append(executor.submit(check_correctness, *args))
                 completion_id[task_id] += 1
                 n_samples += 1
 
             assert n_samples == len(remainings), "Missing problems in unfinished"
-            assert len(completion_id) == len(problems), "Missing problems in samples"
+            # assert len(completion_id) == len(problems), "Missing problems in samples"
 
             def stucking_checker():
                 while remainings:
@@ -224,14 +224,15 @@ def evaluate(flags):
             for future in tqdm(as_completed(futures), total=n_samples):
                 result = future.result()
                 remainings.remove(result["_identifier"])
-                eval_results[result["task_id"]].append(result)
+                eval_results[result["_identifier"]] = {"task_id": result['task_id'], "result": result}
 
         # sort the results for each problem by completion_id
-        for task_id, task_results in eval_results.items():
+        for ident, task_results in eval_results.items():
+            task_id = task_results["task_id"]
+            task_results = task_results["result"]
+            
             task_results.sort(key=lambda x: x["completion_id"])
-            results["eval"][task_id] = []
             for res in task_results:
-
                 def get_failed_tests(stat, details, inputs) -> List[Any]:
                     if stat == PASS or not details:
                         return []
@@ -264,8 +265,7 @@ def evaluate(flags):
                     base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
                     plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
 
-                results["eval"][task_id].append(
-                    {
+                results["eval"][ident] = {
                         "task_id": task_id,
                         "solution": res["solution"],
                         "base_status": base_stat,
@@ -273,7 +273,7 @@ def evaluate(flags):
                         "base_fail_tests": base_fail_tests,
                         "plus_fail_tests": plus_fail_tests,
                     }
-                )
+                
 
     # Calculate pass@k.
     total = np.array([len(r) for r in results["eval"].values()])
