@@ -234,50 +234,48 @@ def evaluate(flags):
         # sort the results for each problem by completion_id
         for ident, task_results in eval_results.items():
             task_id = task_results["task_id"]
-            
-            task_results.sort(key=lambda x: x["completion_id"])
-            for res in task_results:
-                def get_failed_tests(stat, details, inputs) -> List[Any]:
-                    if stat == PASS or not details:
-                        return []
 
-                    if flags.test_details:
-                        return [
-                            inputs[i] for i in range(len(details)) if not details[i]
-                        ]
+            def get_failed_tests(stat, details, inputs) -> List[Any]:
+                if stat == PASS or not details:
+                    return []
 
-                    # else => simply return the only and the last fail test
-                    return [inputs[len(details) - 1]]
+                if flags.test_details:
+                    return [
+                        inputs[i] for i in range(len(details)) if not details[i]
+                    ]
 
-                base_stat, base_details = res["base"]
-                base_fail_tests = get_failed_tests(
-                    base_stat, base_details, problems[task_id]["base_input"]
+                # else => simply return the only and the last fail test
+                return [inputs[len(details) - 1]]
+
+            base_stat, base_details = res["base"]
+            base_fail_tests = get_failed_tests(
+                base_stat, base_details, problems[task_id]["base_input"]
+            )
+
+            # initialize plus tests
+            plus_stat = None
+            plus_fail_tests = []
+
+            # with plus tests
+            if not flags.base_only:
+                plus_stat, plus_details = res["plus"]
+                plus_fail_tests = get_failed_tests(
+                    plus_stat, plus_details, problems[task_id]["plus_input"]
                 )
 
-                # initialize plus tests
-                plus_stat = None
-                plus_fail_tests = []
+            if flags.dataset == "mbpp":
+                base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
+                plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
 
-                # with plus tests
-                if not flags.base_only:
-                    plus_stat, plus_details = res["plus"]
-                    plus_fail_tests = get_failed_tests(
-                        plus_stat, plus_details, problems[task_id]["plus_input"]
-                    )
-
-                if flags.dataset == "mbpp":
-                    base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
-                    plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
-
-                results["eval"][ident] = {
-                        "task_id": task_id,
-                        "probs": res.get("probs", None),
-                        "solution": res["solution"],
-                        "base_status": base_stat,
-                        "plus_status": plus_stat,
-                        "base_fail_tests": base_fail_tests,
-                        "plus_fail_tests": plus_fail_tests,
-                    }
+            results["eval"][ident] = {
+                    "task_id": task_id,
+                    "probs": res.get("probs", None),
+                    "solution": res["solution"],
+                    "base_status": base_stat,
+                    "plus_status": plus_stat,
+                    "base_fail_tests": base_fail_tests,
+                    "plus_fail_tests": plus_fail_tests,
+                }
                 
 
     # Calculate pass@k.
