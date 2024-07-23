@@ -205,8 +205,8 @@ def evaluate(flags):
                     sample["_identifier"],
                     flags.min_time_limit,
                     flags.gt_time_limit_factor,
-                    probs=sample.get("probs", None)
-                ) 
+                    sample.get("probs", None)
+                )
                 futures.append(executor.submit(check_correctness, *args))
                 completion_id[task_id] += 1
                 n_samples += 1
