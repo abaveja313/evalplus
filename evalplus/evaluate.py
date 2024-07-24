@@ -249,24 +249,20 @@ def evaluate(flags):
                 return [inputs[len(details) - 1]]
 
             base_stat, base_details = task_results["base"]
-            base_fail_tests = get_failed_tests(
-                base_stat, base_details, problems[task_id]["base_input"]
-            )
 
             # initialize plus tests
             plus_stat = None
-            plus_fail_tests = []
+            plus_details = []
 
             # with plus tests
             if not flags.base_only:
                 plus_stat, plus_details = task_results["plus"]
-                plus_fail_tests = get_failed_tests(
-                    plus_stat, plus_details, problems[task_id]["plus_input"]
-                )
+
 
             if flags.dataset == "mbpp":
-                base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
-                plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
+                raise NotImplementedError("MBPP is not supported yet")
+                # base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
+                # plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
 
             results["eval"][ident] = {
                     "task_id": task_id,
@@ -274,8 +270,8 @@ def evaluate(flags):
                     "solution": task_results["solution"],
                     "base_status": base_stat,
                     "plus_status": plus_stat,
-                    "base_fail_tests": base_fail_tests,
-                    "plus_fail_tests": plus_fail_tests,
+                    "base_details": base_details,
+                    "plus_details": plus_details,
                 }
                 
 
