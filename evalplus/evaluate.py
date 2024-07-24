@@ -94,7 +94,7 @@ def check_correctness(
         "_identifier": identifier,
         "solution": solution,
     }
-    if probs:
+    if probs is not None:
         ret["probs"] = probs
         
     ret["base"] = untrusted_check(
@@ -210,7 +210,7 @@ def evaluate(flags):
                 futures.append(executor.submit(check_correctness, *args))
                 completion_id[task_id] += 1
                 n_samples += 1
-
+            
             assert n_samples == len(remainings), "Missing problems in unfinished"
             # assert len(completion_id) == len(problems), "Missing problems in samples"
 
