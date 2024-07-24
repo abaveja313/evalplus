@@ -209,6 +209,7 @@ def evaluate(flags):
                 )
                 futures.append(executor.submit(check_correctness, *args))
                 completion_id[task_id] += 1
+                remainings.add(sample["_identifier"])
                 n_samples += 1
             
             assert n_samples == len(remainings), "Missing problems in unfinished"
