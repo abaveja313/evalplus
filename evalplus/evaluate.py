@@ -194,6 +194,7 @@ def evaluate(flags):
                     else problems[task_id]["prompt"] + sample["completion"]
                 )
                 remainings.add(sample["_identifier"])
+                print(sample)
                 args = (
                     flags.dataset,
                     completion_id[task_id],
