@@ -95,7 +95,7 @@ def check_correctness(
         "solution": solution,
     }
     if probs:
-        ret["prob"] = probs
+        ret["probs"] = probs
         
     ret["base"] = untrusted_check(
         dataset,
@@ -193,10 +193,7 @@ def evaluate(flags):
                     if "solution" in sample
                     else problems[task_id]["prompt"] + sample["completion"]
                 )
-                remainings.add(sample["_identifier"])
-                import sys
-                print(sample, file=sys.stderr)
-                
+
                 args = (
                     flags.dataset,
                     completion_id[task_id],
@@ -214,7 +211,6 @@ def evaluate(flags):
                 completion_id[task_id] += 1
                 n_samples += 1
 
-            raise Exception("Stop here")
             assert n_samples == len(remainings), "Missing problems in unfinished"
             # assert len(completion_id) == len(problems), "Missing problems in samples"
 
