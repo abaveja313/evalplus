@@ -258,12 +258,6 @@ def evaluate(flags):
             if not flags.base_only:
                 plus_stat, plus_details = task_results["plus"]
 
-
-            if flags.dataset == "mbpp":
-                raise NotImplementedError("MBPP is not supported yet")
-                # base_fail_tests = mbpp_serialize_inputs(task_id, base_fail_tests)
-                # plus_fail_tests = mbpp_serialize_inputs(task_id, plus_fail_tests)
-
             results["eval"][ident] = {
                     "task_id": task_id,
                     "probs": task_results.get("probs", None),
